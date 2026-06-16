@@ -1310,9 +1310,9 @@
     url = "https://registry.npmjs.org/make-dir/-/make-dir-4.0.0.tgz";
     hash = "sha512-hXdUTZYIVOt1Ex//jAQi+wTZZpUpwBj/0QsOzqegb3rGMMeJiSEu5xLHnYfBrRV4RH2+OCSOO95Is/7x1WJ4bw==";
   };
-  "marked@15.0.12" = fetchurl {
-    url = "https://registry.npmjs.org/marked/-/marked-15.0.12.tgz";
-    hash = "sha512-8dD6FusOQSrpv9Z1rdNMdlSgQOIP880DHqnohobOmYLElGEqAL/JvxvuxZO16r4HtjTlfPRDC1hbvxC9dPN2nA==";
+  "marked@18.0.5" = fetchurl {
+    url = "https://registry.npmjs.org/marked/-/marked-18.0.5.tgz";
+    hash = "sha512-S6GcvALHg6K4ohtu4E7x0a1AqhAjp6cV8KhLSyN9qVapnzJkusVBxZRcIU9AeYsbe6P1hKDusSbEOzGyyuce6w==";
   };
   "merge2@1.4.1" = fetchurl {
     url = "https://registry.npmjs.org/merge2/-/merge2-1.4.1.tgz";
