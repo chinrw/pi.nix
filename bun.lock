@@ -19,9 +19,9 @@
     },
     "packages/agent": {
       "name": "@earendil-works/pi-agent-core",
-      "version": "0.79.8",
+      "version": "0.79.9",
       "dependencies": {
-        "@earendil-works/pi-ai": "^0.79.8",
+        "@earendil-works/pi-ai": "^0.79.9",
         "ignore": "7.0.5",
         "typebox": "1.1.38",
         "yaml": "2.9.0",
@@ -35,7 +35,7 @@
     },
     "packages/ai": {
       "name": "@earendil-works/pi-ai",
-      "version": "0.79.8",
+      "version": "0.79.9",
       "bin": {
         "pi-ai": "./dist/cli.js",
       },
@@ -60,14 +60,14 @@
     },
     "packages/coding-agent": {
       "name": "@earendil-works/pi-coding-agent",
-      "version": "0.79.8",
+      "version": "0.79.9",
       "bin": {
         "pi": "dist/cli.js",
       },
       "dependencies": {
-        "@earendil-works/pi-agent-core": "^0.79.8",
-        "@earendil-works/pi-ai": "^0.79.8",
-        "@earendil-works/pi-tui": "^0.79.8",
+        "@earendil-works/pi-agent-core": "^0.79.9",
+        "@earendil-works/pi-ai": "^0.79.9",
+        "@earendil-works/pi-tui": "^0.79.9",
         "@silvia-odwyer/photon-node": "0.3.4",
         "chalk": "5.6.2",
         "cross-spawn": "7.0.6",
@@ -102,32 +102,32 @@
     },
     "packages/coding-agent/examples/extensions/custom-provider-anthropic": {
       "name": "pi-extension-custom-provider-anthropic",
-      "version": "0.79.8",
+      "version": "0.79.9",
       "dependencies": {
         "@anthropic-ai/sdk": "0.52.0",
       },
     },
     "packages/coding-agent/examples/extensions/custom-provider-gitlab-duo": {
       "name": "pi-extension-custom-provider-gitlab-duo",
-      "version": "0.79.8",
+      "version": "0.79.9",
     },
     "packages/coding-agent/examples/extensions/gondolin": {
       "name": "pi-extension-gondolin",
-      "version": "0.79.8",
+      "version": "0.79.9",
       "dependencies": {
         "@earendil-works/gondolin": "0.12.0",
       },
     },
     "packages/coding-agent/examples/extensions/sandbox": {
       "name": "pi-extension-sandbox",
-      "version": "1.9.8",
+      "version": "1.9.9",
       "dependencies": {
         "@anthropic-ai/sandbox-runtime": "0.0.26",
       },
     },
     "packages/coding-agent/examples/extensions/with-deps": {
       "name": "pi-extension-with-deps",
-      "version": "0.79.8",
+      "version": "0.79.9",
       "dependencies": {
         "ms": "2.1.3",
       },
@@ -137,7 +137,7 @@
     },
     "packages/tui": {
       "name": "@earendil-works/pi-tui",
-      "version": "0.79.8",
+      "version": "0.79.9",
       "dependencies": {
         "get-east-asian-width": "1.6.0",
         "marked": "18.0.5",
@@ -730,7 +730,7 @@
 
     "nan": ["nan@2.27.0", "", {}, "sha512-hC+0LidcL3XE4rp1C4H54KujgXKzbfyTngZTwBByQxsOxCEKZT0MPQ4hOKUH2jU1OYstqdDH4onyHPDzcV0XdQ=="],
 
-    "nanoid": ["nanoid@3.3.13", "", { "bin": { "nanoid": "bin/nanoid.cjs" } }, "sha512-sPdqC6ByMVVGvF1ynvvMo0/o+oD1VX7DaHhijt1bFgjvBkHBib4t49GoNDhf2NDta4oeUNlaGbSt5K7qjZ955Q=="],
+    "nanoid": ["nanoid@3.3.14", "", { "bin": { "nanoid": "bin/nanoid.cjs" } }, "sha512-U9kYi5bpVMEI31yC8iw4bJJp0avcHXA0W8/wNfLfnvJYzihQo2ZRPYPvpAAd570HAcCBjCTN7vnr+v4StKl1IQ=="],
 
     "napi-build-utils": ["napi-build-utils@2.0.0", "", {}, "sha512-GEbrYkbfF7MoNaoh2iGG84Mnf/WZfB0GdGEsM8wz7Expx/LlWf5U8t9nvJKXSp3qr5IsEbK04cBGhol/KwOsWA=="],
 
@@ -760,7 +760,7 @@
 
     "partial-json": ["partial-json@0.1.7", "", {}, "sha512-Njv/59hHaokb/hRUjce3Hdv12wd60MtM9Z5Olmn+nehe0QDAsRtRbJPvJ0Z91TusF0SuZRIvnM+S4l6EIP8leA=="],
 
-    "path-expression-matcher": ["path-expression-matcher@1.5.0", "", {}, "sha512-cbrerZV+6rvdQrrD+iGMcZFEiiSrbv9Tfdkvnusy6y0x0GKBXREFg/Y65GhIfm0tnLntThhzCnfKwp1WRjeCyQ=="],
+    "path-expression-matcher": ["path-expression-matcher@1.6.0", "", {}, "sha512-e5y7RCLHKjemsgQ4eqGJtPyr10ILz25HO7flzxhTV8bgvd5yHx98DGtCAtbVW9f2TqnYI/gEVZd+vz7snrdPTw=="],
 
     "path-key": ["path-key@3.1.1", "", {}, "sha512-ojmeN0qd+y0jszEtoY48r0Peq5dwMEkIlCOu6Q5f41lfkswXuKtYrhgoTpLnyIcHm24Uhqx+5Tqm2InSwLhE6Q=="],
 

@@ -1182,9 +1182,9 @@
     url = "https://registry.npmjs.org/nan/-/nan-2.27.0.tgz";
     hash = "sha512-hC+0LidcL3XE4rp1C4H54KujgXKzbfyTngZTwBByQxsOxCEKZT0MPQ4hOKUH2jU1OYstqdDH4onyHPDzcV0XdQ==";
   };
-  "nanoid@3.3.13" = fetchurl {
-    url = "https://registry.npmjs.org/nanoid/-/nanoid-3.3.13.tgz";
-    hash = "sha512-sPdqC6ByMVVGvF1ynvvMo0/o+oD1VX7DaHhijt1bFgjvBkHBib4t49GoNDhf2NDta4oeUNlaGbSt5K7qjZ955Q==";
+  "nanoid@3.3.14" = fetchurl {
+    url = "https://registry.npmjs.org/nanoid/-/nanoid-3.3.14.tgz";
+    hash = "sha512-U9kYi5bpVMEI31yC8iw4bJJp0avcHXA0W8/wNfLfnvJYzihQo2ZRPYPvpAAd570HAcCBjCTN7vnr+v4StKl1IQ==";
   };
   "napi-build-utils@2.0.0" = fetchurl {
     url = "https://registry.npmjs.org/napi-build-utils/-/napi-build-utils-2.0.0.tgz";
@@ -1242,9 +1242,9 @@
     url = "https://registry.npmjs.org/partial-json/-/partial-json-0.1.7.tgz";
     hash = "sha512-Njv/59hHaokb/hRUjce3Hdv12wd60MtM9Z5Olmn+nehe0QDAsRtRbJPvJ0Z91TusF0SuZRIvnM+S4l6EIP8leA==";
   };
-  "path-expression-matcher@1.5.0" = fetchurl {
-    url = "https://registry.npmjs.org/path-expression-matcher/-/path-expression-matcher-1.5.0.tgz";
-    hash = "sha512-cbrerZV+6rvdQrrD+iGMcZFEiiSrbv9Tfdkvnusy6y0x0GKBXREFg/Y65GhIfm0tnLntThhzCnfKwp1WRjeCyQ==";
+  "path-expression-matcher@1.6.0" = fetchurl {
+    url = "https://registry.npmjs.org/path-expression-matcher/-/path-expression-matcher-1.6.0.tgz";
+    hash = "sha512-e5y7RCLHKjemsgQ4eqGJtPyr10ILz25HO7flzxhTV8bgvd5yHx98DGtCAtbVW9f2TqnYI/gEVZd+vz7snrdPTw==";
   };
   "path-key@2.0.1" = fetchurl {
     url = "https://registry.npmjs.org/path-key/-/path-key-2.0.1.tgz";
