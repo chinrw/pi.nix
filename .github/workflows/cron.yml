@@ -36,9 +36,37 @@ jobs:
           name: pi
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
-      - name: Update version and models
+      - name: Update version and lockfiles
         id: update
-        run: ./update.sh
+        run: |
+          previous_version=$(jq -r .rev VERSION.json)
+
+          nix run .#update --accept-flake-config
+
+          version=$(jq -r .rev VERSION.json)
+          version_changed=false
+          models_changed=false
+          if [[ "$version" != "$previous_version" ]]; then
+            version_changed=true
+          fi
+          if ! git diff --quiet -- models.generated.ts; then
+            models_changed=true
+          fi
+
+          {
+            echo "version=$version"
+            echo "version_changed=$version_changed"
+            echo "models_changed=$models_changed"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Build packages
+        run: |
+          if git diff --quiet -- VERSION.json models.generated.ts package-lock.json bun.lock coding-agent/bun.nix; then
+            exit 0
+          fi
+
+          nix build .#coding-agent --no-link --accept-flake-config
+          nix build .#coding-agent-bun --no-link --accept-flake-config
 
       - name: Run security scans
         run: nix run .#scan --accept-flake-config

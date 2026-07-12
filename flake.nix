@@ -62,21 +62,6 @@
             inherit src version;
           };
 
-          update-script-env = pkgs.symlinkJoin {
-            name = "pi-update-script-env";
-            paths = [
-              pkgs.bash
-              pkgs.bun
-              pkgs.git
-              pkgs.jq
-              pkgs.nix
-              pkgs.nodejs
-              pkgs.npm-lockfile-fix
-              pkgs.prefetch-npm-deps
-              bun2nix.packages.${system}.bun2nix
-            ];
-          };
-
           docs-md =
             let
               agent = self.lib.mkCodingAgent { inherit pkgs; };
@@ -84,49 +69,22 @@
                 options = builtins.removeAttrs agent.options [ "_module" ];
               };
             in
-            pkgs.runCommand "pi-options.md" { } ''
-              mkdir -p $out
-              cp ${docs.optionsCommonMark} $out/index.md
-            '';
-
-          docs-html = pkgs.runCommand "pi-options.html" { nativeBuildInputs = [ pkgs.pandoc ]; } ''
-            mkdir -p $out
-            pandoc \
-              --standalone \
-              --metadata title="pi.nix options" \
-              ${docs-md}/index.md \
-              --output $out/index.html
-          '';
-        }
-      );
-
-      apps = forEachSystem (
-        system:
-        let
-          pkgs = import nixpkgs { inherit system; };
-          scan = pkgs.writeShellApplication {
-            name = "pi-scan";
-            runtimeInputs = with pkgs; [
-              gitleaks
-              osv-scanner
-              zizmor
-            ];
-            text = # bash
+            pkgs.runCommand "pi-options.md" { } # bash
               ''
-                set -euo pipefail
-
-                zizmor .github/workflows
-                osv-scanner scan source --lockfile package-lock.json
-                osv-scanner scan source --lockfile bun.lock
-                gitleaks dir --redact .
+                mkdir -p $out
+                cp ${docs.optionsCommonMark} $out/index.md
               '';
-          };
-        in
-        {
-          scan = {
-            type = "app";
-            program = "${scan}/bin/pi-scan";
-          };
+
+          docs-html =
+            pkgs.runCommand "pi-options.html" { nativeBuildInputs = [ pkgs.pandoc ]; } # bash
+              ''
+                mkdir -p $out
+                pandoc \
+                  --standalone \
+                  --metadata title="pi.nix options" \
+                  ${docs-md}/index.md \
+                  --output $out/index.html
+              '';
         }
       );
 
@@ -170,6 +128,162 @@
           pkgs = import nixpkgs { inherit system; };
         in
         pkgs.nixfmt
+      );
+
+      apps = forEachSystem (
+        system:
+        let
+          pkgs = import nixpkgs { inherit system; };
+
+          updateSource = pkgs.fetchFromGitHub {
+            owner = "earendil-works";
+            repo = "pi";
+            inherit rev hash;
+          };
+
+          syncUpstream = pkgs.writeShellApplication {
+            name = "pi-sync-upstream";
+            runtimeInputs = with pkgs; [
+              bun
+              coreutils
+              gawk
+              git
+              gnugrep
+              gnused
+              jq
+              nix
+              npm-lockfile-fix
+              prefetch-npm-deps
+              bun2nix.packages.${system}.bun2nix
+            ];
+            text = # bash
+              ''
+                set -euo pipefail
+
+                tmpdir=$(mktemp -d)
+                trap 'rm -rf "$tmpdir"' EXIT
+
+                rev=$(git ls-remote --tags --refs https://github.com/earendil-works/pi.git 'v*' \
+                  | awk -F/ '{print $3}' \
+                  | grep -E '^v[0-9]+(\.[0-9]+)*$' \
+                  | sort -V \
+                  | tail -n1)
+                [[ -n "$rev" ]]
+
+                source=$(nix store prefetch-file --json --unpack \
+                  "https://github.com/earendil-works/pi/archive/refs/tags/$rev.tar.gz")
+                hash=$(jq -r .hash <<< "$source")
+                src=$(jq -r .storePath <<< "$source")
+
+                cp -R "$src"/. "$tmpdir"
+                chmod -R u+w "$tmpdir"
+                npm-lockfile-fix "$tmpdir/package-lock.json"
+
+                pushd "$tmpdir" >/dev/null
+                bun install --ignore-scripts
+                bun2nix -o bun.nix
+                popd >/dev/null
+
+                sed -i '/^  fetchurl,$/a\  workspaceRoot ? throw "coding-agent/bun.nix requires workspaceRoot (the upstream pi source root)",' "$tmpdir/bun.nix"
+                sed -Ei 's|copyPathToStore \.\/packages\/([^ );]+)|copyPathToStore (workspaceRoot + "/packages/\1")|g' "$tmpdir/bun.nix"
+
+                npm_deps_hash=$(prefetch-npm-deps "$tmpdir/package-lock.json" | tail -n1)
+
+                jq \
+                  --arg rev "$rev" \
+                  --arg hash "$hash" \
+                  --arg npmDepsHash "$npm_deps_hash" \
+                  '.rev = $rev | .hash = $hash | .projects["coding-agent"].npmDepsHash = $npmDepsHash' \
+                  VERSION.json > "$tmpdir/VERSION.json"
+
+                cp "$tmpdir/package-lock.json" package-lock.json
+                cp "$tmpdir/bun.lock" bun.lock
+                cp "$tmpdir/bun.nix" coding-agent/bun.nix
+                cp "$tmpdir/VERSION.json" VERSION.json
+                echo "Updated lockfiles and VERSION.json for $rev"
+              '';
+          };
+
+          regenerateModels = pkgs.writeShellApplication {
+            name = "pi-regenerate-models";
+            runtimeInputs = with pkgs; [
+              coreutils
+              nodejs
+            ];
+            text = # bash
+              ''
+                set -euo pipefail
+
+                tmpdir=$(mktemp -d)
+                trap 'rm -rf "$tmpdir"' EXIT
+
+                cp -R ${updateSource}/. "$tmpdir"
+                chmod -R u+w "$tmpdir"
+                cp package-lock.json "$tmpdir/package-lock.json"
+
+                pushd "$tmpdir" >/dev/null
+                npm ci --ignore-scripts
+                npm run generate-models --workspace=packages/ai
+                popd >/dev/null
+
+                generated="$tmpdir/packages/ai/src/models.generated.ts"
+                [[ -s "$generated" ]]
+                cp "$generated" models.generated.ts
+                echo "Updated models.generated.ts for ${rev}"
+              '';
+          };
+
+          update = pkgs.writeShellApplication {
+            name = "pi-update";
+            runtimeInputs = [
+              pkgs.nix
+              syncUpstream
+            ];
+            text = # bash
+              ''
+                set -euo pipefail
+
+                pi-sync-upstream
+                nix run .#regenerate-models --accept-flake-config
+              '';
+          };
+
+          scan = pkgs.writeShellApplication {
+            name = "pi-scan";
+            runtimeInputs = with pkgs; [
+              gitleaks
+              osv-scanner
+              zizmor
+            ];
+            text = # bash
+              ''
+                set -euo pipefail
+
+                zizmor .github/workflows
+                osv-scanner scan source --lockfile package-lock.json
+                osv-scanner scan source --lockfile bun.lock
+                gitleaks dir --redact .
+              '';
+          };
+        in
+        {
+          update = {
+            type = "app";
+            program = "${update}/bin/pi-update";
+          };
+          sync-upstream = {
+            type = "app";
+            program = "${syncUpstream}/bin/pi-sync-upstream";
+          };
+          regenerate-models = {
+            type = "app";
+            program = "${regenerateModels}/bin/pi-regenerate-models";
+          };
+          scan = {
+            type = "app";
+            program = "${scan}/bin/pi-scan";
+          };
+        }
       );
     };
 }
