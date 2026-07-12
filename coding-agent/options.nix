@@ -37,15 +37,16 @@ in
     };
 
     rules = lib.mkOption {
-      type = lib.types.nullOr lib.types.lines;
+      type = lib.types.nullOr (
+        lib.types.either lib.types.lines (lib.types.addCheck lib.types.path builtins.isPath)
+      );
       default = null;
       description = ''
-        Extra instructions to append to pi's system prompt via `--append-system-prompt`.
+        Extra instructions to append to pi's system prompt via
+        `--append-system-prompt`. This can be inline text or a Nix path.
       '';
-      example = ''
-        # Rules
-        - Be concise.
-        - Make no mistakes.
+      example = lib.literalExpression ''
+        ./AGENTS.md
       '';
     };
 
@@ -183,7 +184,13 @@ in
           "${path}"
         ]) paths;
 
-      rulesPath = if rules == null then null else pkgs.writeText "pi-AGENTS.md" rules;
+      rulesPath =
+        if rules == null then
+          null
+        else if builtins.isPath rules then
+          rules
+        else
+          pkgs.writeText "pi-AGENTS.md" rules;
 
       resourceArgs =
         (lib.optionals (rulesPath != null) [
