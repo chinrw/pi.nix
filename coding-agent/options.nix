@@ -204,7 +204,7 @@ in
         ++ pathFlags "--prompt-template" promptTemplates;
 
       envPrelude = lib.optionalString (environment != null) (
-        if lib.isAttrs environment then
+        if lib.isAttrs environment && !lib.isDerivation environment then
           lib.concatLines (
             lib.mapAttrsToList (
               name: value: # bash
