@@ -29,8 +29,9 @@ in
       type = lib.types.nullOr lib.types.path;
       default = null;
       description = ''
-        Path to a pi models.json file to install as
-        {file}`~/.pi/agent/models.json`.
+        Path to a pi models.json file to install in pi's agent configuration
+        directory. This defaults to {file}`~/.pi/agent/models.json` and can be
+        overridden with `environment.PI_CODING_AGENT_DIR`.
       '';
       example = lib.literalExpression "./models.json";
     };
@@ -98,19 +99,36 @@ in
     };
 
     environment = lib.mkOption {
-      type = lib.types.nullOr (lib.types.either lib.types.path (lib.types.attrsOf lib.types.path));
+      type = lib.types.nullOr (
+        lib.types.either lib.types.path (
+          lib.types.submodule {
+            freeformType = lib.types.attrsOf (
+              lib.types.either lib.types.str (lib.types.addCheck lib.types.path builtins.isPath)
+            );
+
+            options.PI_CODING_AGENT_DIR = lib.mkOption {
+              type = lib.types.str;
+              description = ''
+                Directory pi uses for its agent configuration.
+                Corresponds to the `PI_CODING_AGENT_DIR` environment variable.
+              '';
+              example = lib.literalExpression ''"''${config.home.homeDirectory}/.pi/agent"'';
+            };
+          }
+        )
+      );
       default = null;
       description = ''
         Extra environment to set before launching pi.
 
         This can either be a shell environment file that is sourced with `set -a`,
-        or an attribute set mapping environment variable names to files whose contents
-        should be exported as the variable values.
+        or an attribute set mapping environment variable names to values. Strings are
+        exported directly, while the contents of Nix paths are exported.
       '';
       example = lib.literalExpression ''
         {
-          OPENAI_API_KEY = config.age.secrets.openai.path;
-          ANTHROPIC_API_KEY = config.age.secrets.anthropic.path;
+          PI_CODING_AGENT_DIR = "/home/user/.pi/agent";
+          OPENAI_API_KEY = ./openai-api-key;
         }
       '';
     };
@@ -118,7 +136,10 @@ in
     settings = lib.mkOption {
       type = lib.types.attrs;
       default = { };
-      description = "Contents of ~/.pi/agent/settings.json";
+      description = ''
+        Contents of `settings.json` in pi's agent configuration directory.
+        The directory can be overridden with `environment.PI_CODING_AGENT_DIR`.
+      '';
     };
 
     finalRules = lib.mkOption {
@@ -174,16 +195,20 @@ in
         ++ pathFlags "--theme" themes
         ++ pathFlags "--prompt-template" promptTemplates;
 
-      envPaths = lib.optionalAttrs (lib.isAttrs environment) environment;
-
       envPrelude = lib.optionalString (environment != null) (
         if lib.isAttrs environment then
           lib.concatLines (
             lib.mapAttrsToList (
-              name: path: # bash
-              ''
-                export ${name}="$(cat ${lib.escapeShellArg "${path}"})"
-              '') envPaths
+              name: value: # bash
+              if builtins.isPath value then
+                ''
+                  export ${name}="$(cat ${lib.escapeShellArg "${value}"})"
+                ''
+              else
+                ''
+                  export ${name}=${lib.escapeShellArg value}
+                ''
+            ) environment
           )
         else
           ''
@@ -193,15 +218,19 @@ in
           ''
       );
 
+      configDirPrelude = lib.optionalString (models != null || settings != { }) ''
+        PI_CODING_AGENT_DIR="''${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}"
+      '';
+
       modelsPrelude =
         lib.optionalString (models != null) # bash
           ''
-            if [ -L "$HOME/.pi/agent/models.json" ]; then
-              rm "$HOME/.pi/agent/models.json"
+            if [ -L "$PI_CODING_AGENT_DIR/models.json" ]; then
+              rm "$PI_CODING_AGENT_DIR/models.json"
             fi
-            if [ ! -f "$HOME/.pi/agent/models.json" ]; then
-              mkdir -p $HOME/.pi/agent
-              install -m 0600 ${models} "$HOME/.pi/agent/models.json"
+            if [ ! -f "$PI_CODING_AGENT_DIR/models.json" ]; then
+              mkdir -p "$PI_CODING_AGENT_DIR"
+              install -m 0600 ${models} "$PI_CODING_AGENT_DIR/models.json"
             fi
           '';
 
@@ -211,14 +240,14 @@ in
       settingsPrelude =
         lib.optionalString (settingsPath != null) # bash
           ''
-            settings_file="$HOME/.pi/agent/settings.json"
+            settings_file="$PI_CODING_AGENT_DIR/settings.json"
 
             if [ -L "$settings_file" ]; then
               rm "$settings_file"
             fi
 
-            mkdir -p "$HOME/.pi/agent"
-            tmp="$(mktemp "$HOME/.pi/agent/settings.json.XXXXXX")"
+            mkdir -p "$PI_CODING_AGENT_DIR"
+            tmp="$(mktemp "$PI_CODING_AGENT_DIR/settings.json.XXXXXX")"
 
             if [ -f "$settings_file" ]; then
               ${lib.getExe pkgs.jq} -s '.[0] * .[1]' "$settings_file" ${lib.escapeShellArg settingsPath} > "$tmp"
@@ -251,6 +280,7 @@ in
           pkgs.writeShellScriptBin "pi" # bash
             ''
               ${envPrelude}
+              ${configDirPrelude}
               ${modelsPrelude}
               ${settingsPrelude}
 

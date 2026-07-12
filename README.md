@@ -75,7 +75,8 @@ nix.settings = {
     #   model = "gpt-5";
     # };
     # extraArgs = [ "--provider" "openai" "--model" "gpt-5" ];
-    # environment.OPENAI_API_KEY = config.age.secrets.openai.path;
+    # environment.PI_CODING_AGENT_DIR = "/path/to/pi-agent";
+    # environment.OPENAI_API_KEY = ./openai-api-key;
   };
 }
 ```
@@ -93,7 +94,8 @@ nix.settings = {
     # skills = [ ./skills/my-skill ];
     # models = ./models.json;
     # settings.model = "gpt-5";
-    # environment.OPENAI_API_KEY = config.age.secrets.openai.path;
+    # environment.PI_CODING_AGENT_DIR = "${config.home.homeDirectory}/.pi/agent";
+    # environment.OPENAI_API_KEY = ./openai-api-key;
   };
 }
 ```
