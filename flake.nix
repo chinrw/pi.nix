@@ -100,6 +100,36 @@
         }
       );
 
+      apps = forEachSystem (
+        system:
+        let
+          pkgs = import nixpkgs { inherit system; };
+          scan = pkgs.writeShellApplication {
+            name = "pi-scan";
+            runtimeInputs = with pkgs; [
+              gitleaks
+              osv-scanner
+              zizmor
+            ];
+            text = # bash
+              ''
+                set -euo pipefail
+
+                zizmor .github/workflows
+                osv-scanner scan source --lockfile package-lock.json
+                osv-scanner scan source --lockfile bun.lock
+                gitleaks dir --redact .
+              '';
+          };
+        in
+        {
+          scan = {
+            type = "app";
+            program = "${scan}/bin/pi-scan";
+          };
+        }
+      );
+
       lib =
         let
           coding-agent = import ./coding-agent/lib.nix {

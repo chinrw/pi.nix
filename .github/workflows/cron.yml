@@ -18,19 +18,20 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
+          persist-credentials: false
           fetch-depth: 0
           ref: ${{ github.ref }}
 
       - name: Install Nix
-        uses: cachix/install-nix-action@v31
+        uses: cachix/install-nix-action@a49548c11d9846ad46ecc0115273879b045f001c # v31
         with:
           extra_nix_config: |
             accept-flake-config = true
 
       - name: Set up Cachix
-        uses: cachix/cachix-action@v14
+        uses: cachix/cachix-action@18cf96c7c98e048e10a83abd92116114cd8504be # v14
         with:
           name: pi
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
@@ -39,9 +40,15 @@ jobs:
         id: update
         run: ./update.sh
 
+      - name: Run security scans
+        run: nix run .#scan --accept-flake-config
+
       - name: Commit and push changes
         env:
           BRANCH: ${{ github.ref_name }}
+          VERSION: ${{ steps.update.outputs.version }}
+          VERSION_CHANGED: ${{ steps.update.outputs.version_changed }}
+          MODELS_CHANGED: ${{ steps.update.outputs.models_changed }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -51,10 +58,10 @@ jobs:
             exit 0
           fi
 
-          version="${{ steps.update.outputs.version }}"
+          version="$VERSION"
 
           push_tag=false
-          if [[ "${{ steps.update.outputs.version_changed }}" == "true" ]]; then
+          if [[ "$VERSION_CHANGED" == "true" ]]; then
             git add VERSION.json models.generated.ts package-lock.json bun.lock coding-agent/bun.nix
             git commit -m "Update pi to ${version}"
 
@@ -64,7 +71,7 @@ jobs:
             fi
           else
             git add models.generated.ts package-lock.json bun.lock coding-agent/bun.nix
-            if [[ "${{ steps.update.outputs.models_changed }}" == "true" ]]; then
+            if [[ "$MODELS_CHANGED" == "true" ]]; then
               git commit -m "Update models"
             else
               git commit -m "Update lockfiles"
