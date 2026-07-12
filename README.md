@@ -158,3 +158,13 @@ Common options under `programs.pi.coding-agent` / `pi.coding-agent`:
 - `extraArgs`
 - `environment`
 - `settings`
+
+Generate the complete option reference in Markdown or HTML with:
+
+```sh
+nix build .#docs-md
+nix build .#docs-html
+```
+
+The outputs are available at `result/index.md` and `result/index.html`,
+respectively.

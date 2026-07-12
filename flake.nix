@@ -76,6 +76,27 @@
               bun2nix.packages.${system}.bun2nix
             ];
           };
+
+          docs-md =
+            let
+              agent = self.lib.mkCodingAgent { inherit pkgs; };
+              docs = pkgs.nixosOptionsDoc {
+                options = builtins.removeAttrs agent.options [ "_module" ];
+              };
+            in
+            pkgs.runCommand "pi-options.md" { } ''
+              mkdir -p $out
+              cp ${docs.optionsCommonMark} $out/index.md
+            '';
+
+          docs-html = pkgs.runCommand "pi-options.html" { nativeBuildInputs = [ pkgs.pandoc ]; } ''
+            mkdir -p $out
+            pandoc \
+              --standalone \
+              --metadata title="pi.nix options" \
+              ${docs-md}/index.md \
+              --output $out/index.html
+          '';
         }
       );
 
