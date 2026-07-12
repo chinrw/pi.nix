@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://lukasl-dev.github.io/pi.nix/">
-    <img src="https://img.shields.io/badge/options-5277C3?style=for-the-badge&logo=nixos&logoColor=white" alt="Options">
+    <img src="https://img.shields.io/badge/docs-options-5277C3?style=for-the-badge&logo=nixos&logoColor=white" alt="Options">
   </a>
   <a href="https://app.cachix.org/cache/pi">
     <img src="https://img.shields.io/badge/cache-Cachix-5277C3?style=for-the-badge&logo=nixos&logoColor=white" alt="Cachix cache">
