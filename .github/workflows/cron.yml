@@ -59,6 +59,9 @@ jobs:
             echo "models_changed=$models_changed"
           } >> "$GITHUB_OUTPUT"
 
+      - name: Run security scans
+        run: nix run .#scan --accept-flake-config
+
       - name: Build packages
         run: |
           if git diff --quiet -- VERSION.json models.generated.ts package-lock.json bun.lock coding-agent/bun.nix; then
@@ -68,16 +71,15 @@ jobs:
           nix build .#coding-agent --no-link --accept-flake-config
           nix build .#coding-agent-bun --no-link --accept-flake-config
 
-      - name: Run security scans
-        run: nix run .#scan --accept-flake-config
-
       - name: Commit and push changes
         env:
+          GH_TOKEN: ${{ github.token }}
           BRANCH: ${{ github.ref_name }}
           VERSION: ${{ steps.update.outputs.version }}
           VERSION_CHANGED: ${{ steps.update.outputs.version_changed }}
           MODELS_CHANGED: ${{ steps.update.outputs.models_changed }}
         run: |
+          gh auth setup-git
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
