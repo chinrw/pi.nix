@@ -108,7 +108,8 @@ in
             );
 
             options.PI_CODING_AGENT_DIR = lib.mkOption {
-              type = lib.types.str;
+              type = lib.types.nullOr lib.types.str;
+              default = null;
               description = ''
                 Directory pi uses for its agent configuration.
                 Corresponds to the `PI_CODING_AGENT_DIR` environment variable.
@@ -215,7 +216,7 @@ in
                 ''
                   export ${name}=${lib.escapeShellArg value}
                 ''
-            ) environment
+            ) (lib.filterAttrs (_name: value: value != null) environment)
           )
         else
           ''
