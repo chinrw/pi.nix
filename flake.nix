@@ -135,12 +135,6 @@
         let
           pkgs = import nixpkgs { inherit system; };
 
-          updateSource = pkgs.fetchFromGitHub {
-            owner = "earendil-works";
-            repo = "pi";
-            inherit rev hash;
-          };
-
           syncUpstream = pkgs.writeShellApplication {
             name = "pi-sync-upstream";
             runtimeInputs = with pkgs; [
@@ -208,6 +202,8 @@
             name = "pi-regenerate-models";
             runtimeInputs = with pkgs; [
               coreutils
+              jq
+              nix
               nodejs
             ];
             text = # bash
@@ -217,7 +213,14 @@
                 tmpdir=$(mktemp -d)
                 trap 'rm -rf "$tmpdir"' EXIT
 
-                cp -R ${updateSource}/. "$tmpdir"
+                rev=$(jq -r .rev VERSION.json)
+                expected_hash=$(jq -r .hash VERSION.json)
+                source=$(nix store prefetch-file --json --unpack \
+                  "https://github.com/earendil-works/pi/archive/refs/tags/$rev.tar.gz")
+                [[ "$(jq -r .hash <<< "$source")" == "$expected_hash" ]]
+                src=$(jq -r .storePath <<< "$source")
+
+                cp -R "$src"/. "$tmpdir"
                 chmod -R u+w "$tmpdir"
                 cp package-lock.json "$tmpdir/package-lock.json"
 
@@ -229,14 +232,14 @@
                 generated="$tmpdir/packages/ai/src/models.generated.ts"
                 [[ -s "$generated" ]]
                 cp "$generated" models.generated.ts
-                echo "Updated models.generated.ts for ${rev}"
+                echo "Updated models.generated.ts for $rev"
               '';
           };
 
           update = pkgs.writeShellApplication {
             name = "pi-update";
             runtimeInputs = [
-              pkgs.nix
+              regenerateModels
               syncUpstream
             ];
             text = # bash
@@ -244,7 +247,7 @@
                 set -euo pipefail
 
                 pi-sync-upstream
-                nix run .#regenerate-models --accept-flake-config
+                pi-regenerate-models
               '';
           };
 
