@@ -100,9 +100,9 @@ in
     };
 
     environment = lib.mkOption {
-      type = lib.types.nullOr (
-        lib.types.either lib.types.path (
-          lib.types.submodule {
+      type =
+        let
+          attrs = lib.types.submodule {
             freeformType = lib.types.attrsOf (
               lib.types.either lib.types.str (lib.types.addCheck lib.types.path builtins.isPath)
             );
@@ -115,9 +115,9 @@ in
               '';
               example = lib.literalExpression ''"''${config.home.homeDirectory}/.pi/agent"'';
             };
-          }
-        )
-      );
+          };
+        in
+        lib.types.nullOr ((lib.types.either lib.types.path attrs) // { inherit (attrs) getSubOptions; });
       default = null;
       description = ''
         Extra environment to set before launching pi.
