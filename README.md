@@ -1,5 +1,11 @@
 # pi.nix
 
+<p align="center">
+  <a href="https://lukasl-dev.github.io/pi.nix/">
+    <img src="https://img.shields.io/badge/option_docs-5277C3?style=for-the-badge&logo=nixos&logoColor=white" alt="Options documentation">
+  </a>
+</p>
+
 A Nix flake for [pi](https://github.com/earendil-works/pi), the terminal coding agent.
 
 It provides:
