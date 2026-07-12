@@ -151,7 +151,7 @@ The NixOS/Home Manager modules still default to the npm-built package. To opt in
 
 ## Options
 
-Common options under `programs.pi.coding-agent` / `pi.coding-agent`:
+Common options under `programs.pi.coding-agent` / `pi.coding-agent` are listed below. See the [full option reference](https://lukasl-dev.github.io/pi.nix/) for details:
 
 - `enable`
 - `package`
