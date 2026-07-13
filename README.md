@@ -85,8 +85,8 @@ nix.settings = {
     # };
     # jail.enable = true;
     # extraArgs = [ "--provider" "openai" "--model" "gpt-5" ];
-    # environment.PI_CODING_AGENT_DIR = "/path/to/pi-agent";
-    # environment.OPENAI_API_KEY = ./openai-api-key;
+    # environment.PI_CODING_AGENT_DIR.value = "/path/to/pi-agent";
+    # environment.OPENAI_API_KEY.file = config.sops.secrets.openai-api-key.path;
   };
 }
 ```
@@ -104,8 +104,8 @@ nix.settings = {
     # skills = [ ./skills/my-skill ];
     # models = ./models.json;
     # settings.model = "gpt-5";
-    # environment.PI_CODING_AGENT_DIR = "${config.home.homeDirectory}/.pi/agent";
-    # environment.OPENAI_API_KEY = ./openai-api-key;
+    # environment.PI_CODING_AGENT_DIR.value = "${config.home.homeDirectory}/.pi/agent";
+    # environment.OPENAI_API_KEY.file = config.sops.secrets.openai-api-key.path;
   };
 }
 ```

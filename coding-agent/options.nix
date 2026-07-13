@@ -148,19 +148,45 @@ in
     environment = lib.mkOption {
       type =
         let
+          nixPath = lib.types.addCheck lib.types.path builtins.isPath;
+          taggedValue = lib.types.attrTag {
+            file = lib.mkOption {
+              type = lib.types.either lib.types.str nixPath;
+              description = "File whose contents are exported at runtime.";
+            };
+            value = lib.mkOption {
+              type = lib.types.str;
+              description = "Literal value to export.";
+            };
+          };
+          environmentValue =
+            (lib.types.coercedTo (lib.types.either lib.types.str nixPath) (
+              legacyValue:
+              throw ''
+                Direct ${
+                  if builtins.isString legacyValue then "string" else "Nix path"
+                } environment values are ambiguous and no longer supported.
+
+                Use an explicit tagged value instead:
+
+                  environment.NAME.value = "literal value";
+                  environment.NAME.file = config.sops.secrets.name.path;
+              ''
+            ) taggedValue)
+            // {
+              description = "attribute set containing exactly one of `file` or `value`";
+            };
           attrs = lib.types.submodule {
-            freeformType = lib.types.attrsOf (
-              lib.types.either lib.types.str (lib.types.addCheck lib.types.path builtins.isPath)
-            );
+            freeformType = lib.types.attrsOf environmentValue;
 
             options.PI_CODING_AGENT_DIR = lib.mkOption {
-              type = lib.types.nullOr lib.types.str;
+              type = lib.types.nullOr environmentValue;
               default = null;
               description = ''
                 Directory pi uses for its agent configuration.
                 Corresponds to the `PI_CODING_AGENT_DIR` environment variable.
               '';
-              example = lib.literalExpression ''"''${config.home.homeDirectory}/.pi/agent"'';
+              example = lib.literalExpression ''{ value = "''${config.home.homeDirectory}/.pi/agent"; }'';
             };
           };
         in
@@ -170,13 +196,15 @@ in
         Extra environment to set before launching pi.
 
         This can either be a shell environment file that is sourced with `set -a`,
-        or an attribute set mapping environment variable names to values. Strings are
-        exported directly, while the contents of Nix paths are exported.
+        or an attribute set mapping environment variable names to tagged values.
+        `{ value = string; }` exports a literal value, while `{ file = path; }`
+        reads and exports the file at runtime. The latter supports runtime paths
+        provided by secret managers such as sops-nix.
       '';
       example = lib.literalExpression ''
         {
-          PI_CODING_AGENT_DIR = "/home/user/.pi/agent";
-          OPENAI_API_KEY = ./openai-api-key;
+          PI_CODING_AGENT_DIR.value = "/home/user/.pi/agent";
+          OPENAI_API_KEY.file = config.sops.secrets.openai-api-key.path;
         }
       '';
     };
@@ -255,13 +283,13 @@ in
           lib.concatLines (
             lib.mapAttrsToList (
               name: value: # bash
-              if builtins.isPath value then
+              if value ? file then
                 ''
-                  export ${name}="$(cat ${lib.escapeShellArg "${value}"})"
+                  export ${name}="$(cat ${lib.escapeShellArg "${value.file}"})"
                 ''
               else
                 ''
-                  export ${name}=${lib.escapeShellArg value}
+                  export ${name}=${lib.escapeShellArg value.value}
                 ''
             ) (lib.filterAttrs (_name: value: value != null) environment)
           )
@@ -287,7 +315,12 @@ in
           && !lib.isDerivation environment
           && environment.PI_CODING_AGENT_DIR != null
         then
-          "agent_dir=${lib.escapeShellArg environment.PI_CODING_AGENT_DIR}"
+          if environment.PI_CODING_AGENT_DIR ? file then
+            ''
+              agent_dir="$(cat ${lib.escapeShellArg "${environment.PI_CODING_AGENT_DIR.file}"})"
+            ''
+          else
+            "agent_dir=${lib.escapeShellArg environment.PI_CODING_AGENT_DIR.value}"
         else if environment != null && (!lib.isAttrs environment || lib.isDerivation environment) then
           ''
             agent_dir="$(${pkgs.runtimeShell} -c '
