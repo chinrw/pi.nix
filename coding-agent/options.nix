@@ -1,5 +1,6 @@
 {
   self,
+  jail-nix,
   optionPath ? [
     "pi"
     "coding-agent"
@@ -23,6 +24,51 @@ in
       type = lib.types.package;
       default = coding-agent;
       description = "The pi coding-agent package to install.";
+    };
+
+    jail = {
+      enable = lib.mkEnableOption "bubblewrap isolation for pi using jail.nix";
+
+      permissions = lib.mkOption {
+        type = lib.types.functionTo (lib.types.listOf lib.types.raw);
+        default =
+          combinators: with combinators; [
+            network
+            mount-cwd
+          ];
+        defaultText =
+          lib.literalExpression
+            # nix
+            ''
+              combinators: with combinators; [
+                network
+                mount-cwd
+              ]
+            '';
+        description = ''
+          Additional permissions passed to jail.nix when wrapping pi. The
+          default allows model API access and mounts the runtime working
+          directory read-write.
+
+          Access to pi's agent configuration directory is always provided
+          separately and does not need to be included here. The jail is
+          supported only on Linux.
+        '';
+        example =
+          lib.literalExpression # nix
+            ''
+              combinators: with combinators; [
+                network
+                mount-cwd
+                (add-pkg-deps [
+                  pkgs.jq
+                  pkgs.gnumake
+                  pkgs.python3
+                ])
+                (try-readonly (noescape "~/.gitconfig"))
+              ]
+            '';
+      };
     };
 
     models = lib.mkOption {
@@ -167,6 +213,7 @@ in
     let
       inherit (cfg)
         package
+        jail
         models
         rules
         extensions
@@ -229,6 +276,30 @@ in
       configDirPrelude = lib.optionalString (models != null || settings != { }) ''
         PI_CODING_AGENT_DIR="''${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}"
       '';
+
+      jailConfigDirRuntime =
+        let
+          runtimeDefault = ''"''${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}"'';
+        in
+        if
+          environment != null
+          && lib.isAttrs environment
+          && !lib.isDerivation environment
+          && environment.PI_CODING_AGENT_DIR != null
+        then
+          "agent_dir=${lib.escapeShellArg environment.PI_CODING_AGENT_DIR}"
+        else if environment != null && (!lib.isAttrs environment || lib.isDerivation environment) then
+          ''
+            agent_dir="$(${pkgs.runtimeShell} -c '
+              exec 3>&1
+              set -a
+              . ${lib.escapeShellArg "${environment}"} >&2
+              set +a
+              printf %s "''${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}" >&3
+            ')"
+          ''
+        else
+          "agent_dir=${runtimeDefault}";
 
       modelsPrelude =
         lib.optionalString (models != null) # bash
@@ -304,7 +375,31 @@ in
     {
       finalRules = rulesPath;
       finalArgs = resourceArgs ++ extraArgs;
-      finalPackage = wrapped;
+      finalPackage =
+        if jail.enable && !pkgs.stdenv.hostPlatform.isLinux then
+          throw "pi.coding-agent.jail is supported only on Linux"
+        else if jail.enable then
+          let
+            jailBuilder = jail-nix.lib.init pkgs;
+            inherit (jailBuilder) combinators;
+            configPermission = combinators.compose [
+              (combinators.add-runtime ''
+                ${jailConfigDirRuntime}
+                case "$agent_dir" in
+                  /*) ;;
+                  *) agent_dir="$PWD/$agent_dir" ;;
+                esac
+                mkdir -p -- "$agent_dir"
+                agent_dir_source="$(realpath "$agent_dir")"
+                RUNTIME_ARGS+=(--bind "$agent_dir_source" "$agent_dir")
+              '')
+              (combinators.try-fwd-env "PI_CODING_AGENT_DIR")
+            ];
+            permissions = jail.permissions combinators ++ [ configPermission ];
+          in
+          jailBuilder "pi" wrapped permissions
+        else
+          wrapped;
     }
   );
 }

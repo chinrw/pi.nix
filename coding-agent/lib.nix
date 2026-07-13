@@ -1,4 +1,8 @@
-{ self, lib }:
+{
+  self,
+  lib,
+  jail-nix,
+}:
 
 {
   mkCodingAgent =
@@ -14,7 +18,7 @@
         }
         // extraSpecialArgs;
 
-        modules = [ (import ./options.nix { inherit self; }) ] ++ modules;
+        modules = [ (import ./options.nix { inherit self jail-nix; }) ] ++ modules;
       };
 
       inherit (evaluated.config.pi.coding-agent) finalPackage finalRules finalArgs;

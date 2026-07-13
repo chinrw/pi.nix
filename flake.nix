@@ -7,6 +7,7 @@
     bun2nix.url = "github:nix-community/bun2nix?ref=2.1.0";
     bun2nix.inputs.nixpkgs.follows = "nixpkgs";
     bun2nix.inputs.systems.follows = "systems";
+    jail-nix.url = "sourcehut:~alexdavid/jail.nix";
   };
 
   nixConfig = {
@@ -26,6 +27,7 @@
       nixpkgs,
       systems,
       bun2nix,
+      jail-nix,
     }:
     let
       current = builtins.fromJSON (builtins.readFile ./VERSION.json);
@@ -91,7 +93,7 @@
       lib =
         let
           coding-agent = import ./coding-agent/lib.nix {
-            inherit self;
+            inherit self jail-nix;
             inherit (nixpkgs) lib;
           };
         in
@@ -101,12 +103,12 @@
 
       nixosModules = rec {
         default = coding-agent;
-        coding-agent = import ./coding-agent/module.nix self;
+        coding-agent = import ./coding-agent/module.nix { inherit self jail-nix; };
       };
 
       homeModules = rec {
         default = coding-agent;
-        coding-agent = import ./coding-agent/home-manager.nix self;
+        coding-agent = import ./coding-agent/home-manager.nix { inherit self jail-nix; };
       };
       homeManagerModules = homeModules;
 

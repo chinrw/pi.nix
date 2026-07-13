@@ -83,6 +83,7 @@ nix.settings = {
     # settings = {
     #   model = "gpt-5";
     # };
+    # jail.enable = true;
     # extraArgs = [ "--provider" "openai" "--model" "gpt-5" ];
     # environment.PI_CODING_AGENT_DIR = "/path/to/pi-agent";
     # environment.OPENAI_API_KEY = ./openai-api-key;
@@ -141,6 +142,47 @@ in
 pi.package
 ```
 
+### Jail
+
+On Linux, pi can run in a [jail.nix](https://sr.ht/~alexdavid/jail.nix/)
+bubblewrap sandbox:
+
+```nix
+programs.pi.coding-agent.jail.enable = true;
+```
+
+By default, the jail has network access and a writable current directory. Pi's
+`PI_CODING_AGENT_DIR` (defaulting to `~/.pi/agent`) is always mounted
+read-write, even when custom permissions are used. The rest of the real home
+directory and host tools outside the package closure remain inaccessible.
+
+Additional permissions can be configured when more tools or files are needed.
+The agent configuration directory should not be included here:
+
+```nix
+programs.pi.coding-agent.jail.permissions = combinators: with combinators; [
+  # Keep the default capabilities when replacing the permission list.
+  network
+  mount-cwd
+
+  # Add custom tools and their runtime closures to the jailed PATH.
+  (add-pkg-deps [
+    pkgs.jq
+    pkgs.gnumake
+    pkgs.python3
+  ])
+
+  # Expose additional host files explicitly.
+  (try-readonly (noescape "~/.gitconfig"))
+];
+```
+
+`add-pkg-deps` is the preferred way to provide compilers, language runtimes,
+build tools, and other commands. Each package's `bin` directory is added to
+`PATH`, and the package's runtime closure is made available inside the jail.
+Because assigning `jail.permissions` replaces its default value, retain
+`network` and `mount-cwd` when those capabilities are wanted.
+
 ### Selecting the Bun package
 
 The NixOS/Home Manager modules still default to the npm-built package. To opt into the Bun-built variant, set `package` explicitly:
@@ -164,6 +206,8 @@ Common options under `programs.pi.coding-agent` / `pi.coding-agent` are listed b
 - `themes`
 - `promptTemplates`
 - `models`
+- `jail.enable`
+- `jail.permissions`
 - `extraArgs`
 - `environment`
 - `settings`

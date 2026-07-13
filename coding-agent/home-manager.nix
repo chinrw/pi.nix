@@ -1,4 +1,4 @@
-self:
+{ self, jail-nix }:
 {
   config,
   lib,
@@ -11,7 +11,7 @@ in
 {
   imports = [
     (import ./options.nix {
-      inherit self;
+      inherit self jail-nix;
       optionPath = [
         "programs"
         "pi"
