@@ -234,10 +234,16 @@
                 npm run generate-models --workspace=packages/ai
                 popd >/dev/null
 
-                generated="$tmpdir/packages/ai/src/models.generated.ts"
-                [[ -s "$generated" ]]
-                cp "$generated" models.generated.ts
-                echo "Updated models.generated.ts for $rev"
+                generated="$tmpdir/packages/ai/src"
+                output="$tmpdir/pi-nix-ai"
+                mkdir -p "$output/providers"
+                cp "$generated/models.generated.ts" "$output/"
+                cp "$generated/providers"/*.models.ts "$output/providers/"
+                cp -R "$generated/providers/data" "$output/providers/"
+
+                rm -rf ai models.generated.ts
+                mv "$output" ai
+                echo "Updated generated AI model data for $rev"
               '';
           };
 
@@ -270,7 +276,7 @@
                 zizmor .github/workflows
                 osv-scanner scan source --lockfile package-lock.json
                 osv-scanner scan source --lockfile bun.lock
-                gitleaks dir --redact .
+                gitleaks dir --redact --config .gitleaks.toml .
               '';
           };
         in

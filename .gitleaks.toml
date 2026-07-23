@@ -1,0 +1,8 @@
+title = "pi.nix gitleaks configuration"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "The generated model-data manifest contains only SHA-256 file hashes."
+paths = ['''^ai/providers/data/\.manifest\.json$''']

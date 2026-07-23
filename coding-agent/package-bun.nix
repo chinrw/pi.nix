@@ -120,7 +120,8 @@ stdenv.mkDerivation {
           fi
         done
 
-        cp ${../models.generated.ts} packages/ai/src/models.generated.ts
+        cp ${../ai/models.generated.ts} packages/ai/src/models.generated.ts
+        cp -R ${../ai/providers}/. packages/ai/src/providers/
 
         substituteInPlace packages/ai/package.json \
           --replace-fail 'npm run generate-models && ' '''
