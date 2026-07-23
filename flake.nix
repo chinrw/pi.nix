@@ -148,6 +148,7 @@
               gnused
               jq
               nix
+              nodejs
               npm-lockfile-fix
               prefetch-npm-deps
               bun2nix.packages.${system}.bun2nix
@@ -175,7 +176,9 @@
                 chmod -R u+w "$tmpdir"
                 npm-lockfile-fix "$tmpdir/package-lock.json"
 
+                # workaround for vulnerable upstream lockfiles
                 pushd "$tmpdir" >/dev/null
+                npm audit fix --package-lock-only --ignore-scripts
                 bun install --ignore-scripts
                 bun2nix -o bun.nix
                 popd >/dev/null
