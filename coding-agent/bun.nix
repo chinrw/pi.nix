@@ -205,6 +205,7 @@
   "@earendil-works/pi-agent-core" = copyPathToStore (workspaceRoot + "/packages/agent");
   "@earendil-works/pi-ai" = copyPathToStore (workspaceRoot + "/packages/ai");
   "@earendil-works/pi-coding-agent" = copyPathToStore (workspaceRoot + "/packages/coding-agent");
+  "@earendil-works/pi-evals" = copyPathToStore (workspaceRoot + "/packages/evals");
   "@earendil-works/pi-server" = copyPathToStore (workspaceRoot + "/packages/server");
   "@earendil-works/pi-storage-sqlite-node" = copyPathToStore (workspaceRoot + "/packages/storage/sqlite-node");
   "@earendil-works/pi-tui" = copyPathToStore (workspaceRoot + "/packages/tui");
@@ -663,6 +664,14 @@
   "@typescript/native-preview@7.0.0-dev.20260120.1" = fetchurl {
     url = "https://registry.npmjs.org/@typescript/native-preview/-/native-preview-7.0.0-dev.20260120.1.tgz";
     hash = "sha512-nnEf37C9ue7OBRnF2zmV/OCBmV5Y7T/K4mCHa+nxgiXcF/1w8sA0cgdFl+gHQ0mysqUJ+Bu5btAMeWgpLyjrgg==";
+  };
+  "@vitest-evals/core@0.15.0" = fetchurl {
+    url = "https://registry.npmjs.org/@vitest-evals/core/-/core-0.15.0.tgz";
+    hash = "sha512-kqyg3ocVtZxr3rP9oh01oAycRgXNRasvTgLZ8MbFGBJ4BRd4tk7Bgww253HY7fw7ZFUp4UPYNmDp5AcHajm++w==";
+  };
+  "@vitest-evals/report-ui@0.15.0" = fetchurl {
+    url = "https://registry.npmjs.org/@vitest-evals/report-ui/-/report-ui-0.15.0.tgz";
+    hash = "sha512-icrutiRhZ2T1MrHo2RW09hcEwfi/tV/FgsGAE76Wd0C02tZyCleQRjt11RWhBJiYDPpsjjjTHGCHIO6tmtX5zQ==";
   };
   "@vitest/coverage-v8@4.1.9" = fetchurl {
     url = "https://registry.npmjs.org/@vitest/coverage-v8/-/coverage-v8-4.1.9.tgz";
@@ -1496,6 +1505,10 @@
   "vite@8.1.5" = fetchurl {
     url = "https://registry.npmjs.org/vite/-/vite-8.1.5.tgz";
     hash = "sha512-7ULLwsCdYx/nRyrpiEwvqb5TFHrMVZyBt+rg/OAXT7rgj/z+DtTDyKFeLAdDkubDVDKD8jOsndmy7m55XcfUsw==";
+  };
+  "vitest-evals@0.15.0" = fetchurl {
+    url = "https://registry.npmjs.org/vitest-evals/-/vitest-evals-0.15.0.tgz";
+    hash = "sha512-bOYALQdLXKYFRCV8aQ+yLeH7XkmYsTxUWQxLHzJdIEcIBx2v/kPgG3Zg6m231jMCphuoM6xH4YQB3+0pDP7LLw==";
   };
   "vitest@4.1.9" = fetchurl {
     url = "https://registry.npmjs.org/vitest/-/vitest-4.1.9.tgz";
