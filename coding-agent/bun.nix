@@ -1438,9 +1438,9 @@
     url = "https://registry.npmjs.org/tinybench/-/tinybench-2.9.0.tgz";
     hash = "sha512-0+DUvqWMValLmha6lr4kD8iAMK1HzV0/aKnCtWb9v9641TnP/MFb7Pc2bxoxQjTXAErryXVgUOfv2YqNllqGeg==";
   };
-  "tinyexec@1.2.4" = fetchurl {
-    url = "https://registry.npmjs.org/tinyexec/-/tinyexec-1.2.4.tgz";
-    hash = "sha512-SHf/r48b7vOrjve9PxJo3MN5v5yuyjHvdUcrQffT3WXMUfnGmHDVbC4k3sHJaJTgZCwpUplIaAo5ANtMyp3YHg==";
+  "tinyexec@1.3.0" = fetchurl {
+    url = "https://registry.npmjs.org/tinyexec/-/tinyexec-1.3.0.tgz";
+    hash = "sha512-QKAl9m8gWWGHV8jZcPeym6j+XULi6tOf1mT83WYJ4Lk2ytW/uwAWkrP0uFsdoYMdueVJ0qs26wZ+23xeB4ibNQ==";
   };
   "tinyglobby@0.2.17" = fetchurl {
     url = "https://registry.npmjs.org/tinyglobby/-/tinyglobby-0.2.17.tgz";
