@@ -189,8 +189,17 @@ in
               example = lib.literalExpression ''{ value = "''${config.home.homeDirectory}/.pi/agent"; }'';
             };
           };
+          checkedAttrs = lib.types.addCheck attrs (
+            values: lib.all lib.isValidPosixName (builtins.attrNames values)
+          );
         in
-        lib.types.nullOr ((lib.types.either lib.types.path attrs) // { inherit (attrs) getSubOptions; });
+        lib.types.nullOr (
+          (lib.types.either lib.types.path checkedAttrs)
+          // {
+            inherit (attrs) getSubOptions;
+            description = "shell environment file or attribute set with POSIX environment variable names";
+          }
+        );
       default = null;
       description = ''
         Extra environment to set before launching pi.
@@ -285,11 +294,11 @@ in
               name: value: # bash
               if value ? file then
                 ''
-                  export ${name}="$(cat ${lib.escapeShellArg "${value.file}"})"
+                  export ${lib.escapeShellArg name}="$(cat ${lib.escapeShellArg "${value.file}"})"
                 ''
               else
                 ''
-                  export ${name}=${lib.escapeShellArg value.value}
+                  export ${lib.escapeShellArg name}=${lib.escapeShellArg value.value}
                 ''
             ) (lib.filterAttrs (_name: value: value != null) environment)
           )
