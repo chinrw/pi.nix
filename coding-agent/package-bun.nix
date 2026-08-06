@@ -142,7 +142,7 @@ stdenv.mkDerivation {
 
   buildPhase = ''
     runHook preBuild
-    for pkg in tui ai agent coding-agent; do
+    for pkg in tui telemetry ai agent protocol client coding-agent; do
       (cd "packages/$pkg" && bun run build)
     done
     runHook postBuild
@@ -152,7 +152,7 @@ stdenv.mkDerivation {
     runHook preInstall
     mkdir -p $out/bin $out/lib/node_modules/@earendil-works
 
-    for pkg in tui ai agent coding-agent mom pods; do
+    for pkg in tui telemetry ai agent protocol client coding-agent mom pods; do
       [ -d "packages/$pkg/dist" ] || continue
       mkdir -p "$out/lib/node_modules/@earendil-works/pi-$pkg"
       cp -r packages/$pkg/dist/* "$out/lib/node_modules/@earendil-works/pi-$pkg/"
