@@ -1485,9 +1485,9 @@
     url = "https://registry.npmjs.org/util-deprecate/-/util-deprecate-1.0.2.tgz";
     hash = "sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==";
   };
-  "vite@8.2.0" = fetchurl {
-    url = "https://registry.npmjs.org/vite/-/vite-8.2.0.tgz";
-    hash = "sha512-pn+CFpM0lwDeKwmOq1ZaBK/9sjorZcgqxki6MbY/jPEVd9vichIlmlD4HmQ5wdP5EgqQCFRaACBxMC7uEGc6lQ==";
+  "vite@8.2.1" = fetchurl {
+    url = "https://registry.npmjs.org/vite/-/vite-8.2.1.tgz";
+    hash = "sha512-EU/eS7BH3XROHh2YnBefjM6DBKA6ZeMZEYQbj7NLWg5wHYlhB8B/Mayd5XsgWq+NFYccDOTemRpdETWR6Ka/lw==";
   };
   "vitest-evals@0.15.0" = fetchurl {
     url = "https://registry.npmjs.org/vitest-evals/-/vitest-evals-0.15.0.tgz";
