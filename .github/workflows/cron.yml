@@ -24,17 +24,21 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.ref }}
 
+      # accept-flake-config is NOT set globally: it would pull pi.cachix.org
+      # into every command, and coding-agent must be built from source here.
+      # The updater steps below opt in per-invocation instead.
       - name: Install Nix
         uses: cachix/install-nix-action@a49548c11d9846ad46ecc0115273879b045f001c # v31
-        with:
-          extra_nix_config: |
-            accept-flake-config = true
 
+      # skipPush: the automatic post-job push would also upload whatever the
+      # updater pulled from third-party caches. Only the coding-agent closure
+      # is pushed, explicitly, below.
       - name: Set up Cachix
         uses: cachix/cachix-action@18cf96c7c98e048e10a83abd92116114cd8504be # v14
         with:
-          name: pi
+          name: chinrw
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+          skipPush: true
 
       - name: Update version and lockfiles
         id: update
@@ -62,14 +66,15 @@ jobs:
       - name: Run security scans
         run: nix run .#scan --accept-flake-config
 
-      - name: Build packages
+      # No --accept-flake-config: builds from source instead of substituting
+      # pi.cachix.org, so what lands in chinrw.cachix.org was built here.
+      # Unconditional — on no-change days the path is already in the cache, so
+      # this is a download, and it keeps the current version always cached.
+      # coding-agent-bun is dropped; only the npm build is consumed downstream.
+      - name: Build and push coding-agent
         run: |
-          if git diff --quiet -- VERSION.json ai package-lock.json bun.lock coding-agent/bun.nix; then
-            exit 0
-          fi
-
-          nix build path:.#coding-agent --no-link --accept-flake-config
-          nix build path:.#coding-agent-bun --no-link --accept-flake-config
+          nix build path:.#coding-agent --out-link result
+          cachix push chinrw ./result
 
       - name: Commit and push changes
         env:
