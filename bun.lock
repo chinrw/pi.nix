@@ -484,7 +484,7 @@
 
     "@silvia-odwyer/photon-node": ["@silvia-odwyer/photon-node@0.3.4", "", {}, "sha512-bnly4BKB3KDTFxrUIcgCLbaeVVS8lrAkri1pEzskpmxu9MdfGQTy8b8EgcD83ywD3RPMsIulY8xJH5Awa+t9fA=="],
 
-    "@smithy/core": ["@smithy/core@3.32.0", "", { "dependencies": { "@smithy/types": "^4.17.0", "tslib": "^2.6.2" } }, "sha512-NAiCSC78fzbNIEWoheoF74Ob5ZorLijCHpMY26Fqvqg/+9LuyIqMfHDg2p8Yk1rqOyowtiL3y7WX0AW+teL6zw=="],
+    "@smithy/core": ["@smithy/core@3.33.0", "", { "dependencies": { "@smithy/types": "^4.17.0", "tslib": "^2.6.2" } }, "sha512-uKbkxgqLyepQDZoq8aRSdUqD1ID//rOqG96ixBhp++O7vBtmwYM6fwldGhr9HJP0iYrdc7GP/AlgzPWEZIrNRg=="],
 
     "@smithy/credential-provider-imds": ["@smithy/credential-provider-imds@4.5.0", "", { "dependencies": { "@smithy/core": "^3.32.0", "@smithy/types": "^4.17.0", "tslib": "^2.6.2" } }, "sha512-2jsPi+7Zv2hSzD9IXR9D7DTqSn7mv4XalzRm+bESh53jiaUS3NKEUbpQFTJP0HhQy9qzZvluxQ3yS24zdRrqsA=="],
 
@@ -978,11 +978,11 @@
 
     "zod-to-json-schema": ["zod-to-json-schema@3.25.2", "", { "peerDependencies": { "zod": "^3.25.28 || ^4" } }, "sha512-O/PgfnpT1xKSDeQYSCfRI5Gy3hPf91mKVDuYLUHZJMiDFptvP41MSnWofm8dnCm0256ZNfZIM7DSzuSMAFnjHA=="],
 
-    "@aws-sdk/credential-provider-http/@smithy/node-http-handler": ["@smithy/node-http-handler@4.10.0", "", { "dependencies": { "@smithy/core": "^3.32.0", "@smithy/types": "^4.17.0", "tslib": "^2.6.2" } }, "sha512-nrh7VxqzPQS/ip1hS293aI/OAWDWARQvjUxCfuKhyrfHa2gTdk28066RNeWLI1uuoHXaKAkOF8IcSAHuOp0+SA=="],
+    "@aws-sdk/credential-provider-http/@smithy/node-http-handler": ["@smithy/node-http-handler@4.11.0", "", { "dependencies": { "@smithy/core": "^3.33.0", "@smithy/types": "^4.17.0", "tslib": "^2.6.2" } }, "sha512-ssHIZsadPUA3lGdnoByxfnjtb9xPYQLvdfJRLKIwxOoa6tO1suG4sLFSsgd7D/CsvYd8QbBIuKTImuJha5l6aQ=="],
 
     "@aws-sdk/credential-provider-sso/@aws-sdk/token-providers": ["@aws-sdk/token-providers@3.1108.0", "", { "dependencies": { "@aws-sdk/core": "^3.977.7", "@aws-sdk/nested-clients": "^3.997.42", "@aws-sdk/types": "^3.974.3", "@smithy/core": "^3.31.1", "@smithy/types": "^4.16.1", "tslib": "^2.6.2" } }, "sha512-rI80zxDxGJ6904eC/YbjkdjY6JdaZvQ01kOmrMvw7cFQGIHo27fhnIVbMSVDS4T6foQImjxYSRoOu/uSJscXDw=="],
 
-    "@aws-sdk/nested-clients/@smithy/node-http-handler": ["@smithy/node-http-handler@4.10.0", "", { "dependencies": { "@smithy/core": "^3.32.0", "@smithy/types": "^4.17.0", "tslib": "^2.6.2" } }, "sha512-nrh7VxqzPQS/ip1hS293aI/OAWDWARQvjUxCfuKhyrfHa2gTdk28066RNeWLI1uuoHXaKAkOF8IcSAHuOp0+SA=="],
+    "@aws-sdk/nested-clients/@smithy/node-http-handler": ["@smithy/node-http-handler@4.11.0", "", { "dependencies": { "@smithy/core": "^3.33.0", "@smithy/types": "^4.17.0", "tslib": "^2.6.2" } }, "sha512-ssHIZsadPUA3lGdnoByxfnjtb9xPYQLvdfJRLKIwxOoa6tO1suG4sLFSsgd7D/CsvYd8QbBIuKTImuJha5l6aQ=="],
 
     "@earendil-works/gondolin/undici": ["undici@6.28.0", "", {}, "sha512-LIY910g9TI13YS95lrMFrs8Rm/u/irgHeTWoKCoteeJ04CUJ92eEfj0rVn+7VKMPBpUPiUoBKfhNyLI23EE/KA=="],
 
