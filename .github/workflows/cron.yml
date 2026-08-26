@@ -73,7 +73,7 @@ jobs:
       # coding-agent-bun is dropped; only the npm build is consumed downstream.
       - name: Build and push coding-agent
         run: |
-          nix build path:.#coding-agent --out-link result
+          nix build -L path:.#coding-agent --out-link result
           cachix push chinrw ./result
 
       - name: Commit and push changes
