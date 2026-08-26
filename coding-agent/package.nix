@@ -80,6 +80,16 @@ buildNpmPackage {
     cp ${../ai/models.generated.ts} packages/ai/src/models.generated.ts
     cp -R ${../ai/providers}/. packages/ai/src/providers/
 
+    # Live catalogs may omit an API that the provider still implements. Pin
+    # the full stream union so inference does not reject the extra handler.
+    cloudflareGatewayProvider=packages/ai/src/providers/cloudflare-ai-gateway.ts
+    if grep -qF 'return createProvider({' "$cloudflareGatewayProvider"; then
+      substituteInPlace "$cloudflareGatewayProvider" \
+        --replace-fail \
+          'return createProvider({' \
+          $'return createProvider<\n\t\t"anthropic-messages" | "openai-completions" | "openai-responses"\n\t>({'
+    fi
+
     # Generated catalogs can retain completion-only xAI models after upstream
     # narrows its provider to Responses, so keep each model on its declared API.
     xaiProvider=packages/ai/src/providers/xai.ts
