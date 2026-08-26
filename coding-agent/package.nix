@@ -80,6 +80,24 @@ buildNpmPackage {
     cp ${../ai/models.generated.ts} packages/ai/src/models.generated.ts
     cp -R ${../ai/providers}/. packages/ai/src/providers/
 
+    # Generated catalogs can retain completion-only xAI models after upstream
+    # narrows its provider to Responses, so keep each model on its declared API.
+    xaiProvider=packages/ai/src/providers/xai.ts
+    if grep -q '"openai-completions"' packages/ai/src/providers/data/xai.json \
+      && grep -q 'Provider<"openai-responses">' "$xaiProvider"
+    then
+      substituteInPlace "$xaiProvider" \
+        --replace-fail \
+          'import { openAIResponsesApi } from "../api/openai-responses.lazy.ts";' \
+          $'import { openAICompletionsApi } from "../api/openai-completions.lazy.ts";\nimport { openAIResponsesApi } from "../api/openai-responses.lazy.ts";' \
+        --replace-fail \
+          'export function xaiProvider(): Provider<"openai-responses"> {' \
+          'export function xaiProvider(): Provider<"openai-completions" | "openai-responses"> {' \
+        --replace-fail \
+          'api: openAIResponsesApi(),' \
+          $'api: {\n\t\t\t"openai-completions": openAICompletionsApi(),\n\t\t\t"openai-responses": openAIResponsesApi(),\n\t\t},'
+    fi
+
     substituteInPlace packages/ai/package.json \
       --replace-fail 'npm run generate-models && ' '''
   '';
